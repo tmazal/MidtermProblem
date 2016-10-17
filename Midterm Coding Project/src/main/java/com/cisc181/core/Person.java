@@ -5,9 +5,8 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/*
- * comment
- */
+import com.cisc181.exceptions.*;
+
 public abstract class Person implements java.io.Serializable {
 
 	private Date DOB;
@@ -49,7 +48,6 @@ public abstract class Person implements java.io.Serializable {
 	public void setDOB(Date DOB){
 		this.DOB = DOB;
 		
-		
 	}
 
 	public void setAddress(String newAddress) {
@@ -88,17 +86,35 @@ public abstract class Person implements java.io.Serializable {
 	 * Constructors Constructor with arguments
 	 */
 
-	public Person(String FirstName, String MiddleName, String LastName,
-			Date DOB, String Address, String Phone_number, String Email)
+	public Person(String FirstName, String MiddleName, String LastName, Date DOB, 
+			String Address, String Phone_number, String Email) throws PersonException
 	{
 		this.FirstName = FirstName;
 		this.MiddleName = MiddleName;
 		this.LastName = LastName;
-		this.setDOB(DOB);
 		this.address = Address;
-		this.setPhone(Phone_number);
 		this.email_address = Email;
 		
+		// Makes a calendar + date from 100 years ago, compares to DOB
+		Calendar HundredYrAgo = Calendar.getInstance();
+		HundredYrAgo.add(Calendar.YEAR, -100);
+		if (DOB.compareTo(HundredYrAgo.getTime()) < 0){
+			System.out.println("DOB given is more than 100 years older than current date.");
+			throw new PersonException(this);
+		}
+		else 
+			this.setDOB(DOB);
+		
+		// Uses regular expression to determine whether phone number is properly formatted
+		String phoneregex = "^[(]{1}[0-9]{3}[)]{1}[-]{1}[0-9]{3}[-]{1}[0-9]{4}$";
+		Pattern pattern = Pattern.compile(phoneregex);
+		Matcher matcher = pattern.matcher(Phone_number);
+		if (matcher.matches() == false){
+			System.out.println("The given phone-number is not formatted properly.");
+			throw new PersonException(this);
+		}
+		else 
+			this.setPhone(Phone_number);
 	}
 
 	public void PrintName() {
